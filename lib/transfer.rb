@@ -1,9 +1,8 @@
 'require pry'
 
 class Transfer
-
-attr_accessor :amount, :status
-attr_reader :sender, :receiver
+attr_accessor  :status
+attr_reader :sender, :receiver, :amount
 
   def initialize(sender, receiver, amount=50)
       @sender = sender
@@ -13,18 +12,14 @@ attr_reader :sender, :receiver
   end
 
   def valid?
-    self.sender.balance >= self.amount
-    self.receiver.status == "open"
-    self.sender.status == "open"
-    self.sender.valid?
-    self.receiver.valid?
+  sender.valid? && receiver.valid?
     #binding.pry
   end
 
 
   def execute_transaction
     if self.status == "pending"
-        if  self.sender.valid? && self.sender.balance >= self.amount && self.receiver.valid?
+        if  self.valid? && self.sender.balance >= self.amount
          self.sender.balance -= self.amount
          self.receiver.balance += self.amount
          self.status = "complete"
@@ -32,16 +27,18 @@ attr_reader :sender, :receiver
          self.status = "rejected"
          "Transaction rejected. Please check your account balance."
        end
-      else
-      
     end
-
   end
 
   def reverse_transfer
-  end
-
-
+      if self.status == "complete"
+        if self.valid? && self.receiver.balance >= amount
+          self.sender.balance += self.amount
+          self.receiver.balance -= self.amount
+          self.status = "reversed"
+        end
+      end
+    end
 
 end
      # your code here
